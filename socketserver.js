@@ -59,5 +59,11 @@ module.exports = class SocketServer {
     return data
   }
 
-  async applyListeners (socket) { }
+  async applyListeners (socket) {
+    Object.keys(this.listeners).forEach(key => {
+      socket.on(key, (data) => {
+        this.listeners[key].trigger(this.peers[socket.id], data, socket)
+      })
+    })
+  }
 }
