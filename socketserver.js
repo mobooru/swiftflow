@@ -40,6 +40,7 @@ module.exports = class SocketServer {
 
       socket.on('disconnect', () => this.disconnected(socket))
       this.applyAuthenticatedListeners(socket)
+      if (AUTHENTICATION.JOIN_CHANNEL) socket.join(AUTHENTICATION.JOIN_CHANNEL)
       socket.emit('authenticated', true)
     } catch (e) {
       socket.emit('authenticated', false)
@@ -47,7 +48,7 @@ module.exports = class SocketServer {
   }
 
   async broadcast (channel, event, data) {
-    this.io.in(channel).emit(event, data)
+    this.io.to(channel).emit(event, data)
   }
 
   async register (Listener) {
