@@ -34,15 +34,15 @@ module.exports = class SocketServer {
       AUTHENTICATION = await this.validateAuthenticity(data)
       if (!AUTHENTICATION) throw new Error('NOT_AUTHENTICATED')
 
-      this.io.to('stats').emit('CLIENT_AUTHENTICATED', { id: socket.id, channel: data.JOIN_CHANNEL || 'NONE' })
+      this.io.to('stats').emit('CLIENT_AUTHENTICATED', { id: socket.id })
 
       this.peers[socket.id] = { ...AUTHENTICATION }
-      if (data.JOIN_CHANNEL) socket.join(data.JOIN_CHANNEL)
 
       socket.on('disconnect', () => this.disconnected(socket))
-      this.applyListeners(socket)
+      this.applyAuthenticatedListeners(socket)
+      socket.emit('authenticated', true)
     } catch (e) {
-      socket.send('error', e)
+      socket.emit('authenticated', false)
     }
   }
 
@@ -59,11 +59,7 @@ module.exports = class SocketServer {
     return data
   }
 
-  async applyListeners (socket) {
-    Object.keys(this.listeners).forEach(key => {
-      socket.on(key, (data) => {
-        this.listeners[key].trigger(this.peers[socket.id], data, socket)
-      })
-    })
+  async applyAuthenticatedListeners (socket) {
+
   }
 }
