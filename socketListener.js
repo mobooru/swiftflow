@@ -7,7 +7,7 @@ module.exports = class SocketListener {
     const timeStart = new Date()
     try {
       const res = await this.execute(peer, data)
-      socket.emit(res.key, { ...res, executionTime: Date.now() - timeStart })
+      socket.emit(res.key || this.key, { ...res, executionTime: Date.now() - timeStart })
     } catch (e) {
       socket.emit('ERROR', { key: this.key, error: e.message, executionTime: Date.now() - timeStart })
     }
